@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://vbtaisbfmo20"
+path="res://.godot/imported/01_RandomOutput.glsl-069a4bf740db21d4fad75ea918b3466b.res"
+
+[deps]
+
+source_file="res://01_RandomOutput/01_RandomOutput.glsl"
+dest_files=["res://.godot/imported/01_RandomOutput.glsl-069a4bf740db21d4fad75ea918b3466b.res"]
+
+[params]
+

@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://dgeh3h41lqje3"]
+
+[ext_resource type="Script" path="res://0_ComputeDemo/0_demo.gd" id="1_456rp"]
+[ext_resource type="Texture2D" uid="uid://bsm40o7xuabx6" path="res://icon.svg" id="1_dp7w3"]
+
+[node name="0Demo" type="TextureRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_dp7w3")
+script = ExtResource("1_456rp")
+brightness = -0.5
+shader_path = "res://0_ComputeDemo/0_Demo.glsl"
+
+[connection signal="size_flags_changed" from="." to="." method="_on_size_flags_changed"]
