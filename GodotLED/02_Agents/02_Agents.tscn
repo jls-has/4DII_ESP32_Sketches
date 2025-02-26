@@ -3,4 +3,11 @@
 [ext_resource type="Script" path="res://02_Agents/02_agents.gd" id="1_px41p"]
 
 [node name="02Agents" type="TextureRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_px41p")
+agent_speed = -100.0
+shader_path = "res://02_Agents_NotWorking/02_Agents.glsl"

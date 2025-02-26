@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://fk001n0f4u8a"]
+
+[ext_resource type="Script" path="res://03A_Boids2D_DevPoodle/03a_boids_2d.gd" id="1_grbty"]
+[ext_resource type="Shader" path="res://03A_Boids2D_DevPoodle/03a_boids_2d.gdshader" id="2_bn6r7"]
+[ext_resource type="Texture2D" uid="uid://bwkbfkkajsw5b" path="res://03A_Boids2D_DevPoodle/boid.png" id="3_p17ma"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nepbx"]
+shader = ExtResource("2_bn6r7")
+shader_parameter/scale = Vector2(0.5, 0.5)
+shader_parameter/color = null
+shader_parameter/color_mode = null
+shader_parameter/max_friends = 10
+
+[node name="03A_Boids2D" type="TextureRect" node_paths=PackedStringArray("boid_particles")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_grbty")
+boid_particles = NodePath("GPUParticles2D")
+cohesion_factor = 0.0
+shader_path = "res://03A_Boids2D_DevPoodle/boid_shader.glsl"
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+process_material = SubResource("ShaderMaterial_nepbx")
+texture = ExtResource("3_p17ma")

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://d2gi175w8so2g"
+path="res://.godot/imported/bin_sum.glsl-65d193ee81d2ac693b2c80207c8f6f2e.res"
+
+[deps]
+
+source_file="res://03A_Boids2D_DevPoodle/OGComputeShaders/bin_sum.glsl"
+dest_files=["res://.godot/imported/bin_sum.glsl-65d193ee81d2ac693b2c80207c8f6f2e.res"]
+
+[params]
+
