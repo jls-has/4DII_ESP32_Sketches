@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bbqodee0yjaap"
+path="res://.godot/imported/04_Agents.glsl-61d1f5be488a04780e981c29c0b5ce87.res"
+
+[deps]
+
+source_file="res://04_FadingTrails_2D/04_Agents.glsl"
+dest_files=["res://.godot/imported/04_Agents.glsl-61d1f5be488a04780e981c29c0b5ce87.res"]
+
+[params]
+
