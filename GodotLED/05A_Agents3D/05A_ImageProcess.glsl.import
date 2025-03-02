@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://dnjrkwtl71bqj"
+path="res://.godot/imported/05A_ImageProcess.glsl-41f3682bd4bd47536f9bb8461185dfb9.res"
+
+[deps]
+
+source_file="res://05A_Agents3D/05A_ImageProcess.glsl"
+dest_files=["res://.godot/imported/05A_ImageProcess.glsl-41f3682bd4bd47536f9bb8461185dfb9.res"]
+
+[params]
+

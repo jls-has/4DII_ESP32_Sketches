@@ -12,7 +12,7 @@ static func create(image: Image) -> ImageUniform:
 	var uniform := ImageUniform.new()
 	uniform.texture_size = image.get_size()
 	uniform.image_format = image.get_format()
-	uniform.texture_format = ImageFormatHelper.create_rd_texture_format(uniform.image_format, uniform.texture_size)
+	uniform.texture_format = ImageFormatHelper.create_rd_texture_format(uniform.image_format, Vector3(uniform.texture_size.x, uniform.texture_size.y, 0.0))
 	uniform.texture = ComputeHelper.rd.texture_create(uniform.texture_format, ComputeHelper.view, [image.get_data()])
 	return uniform
 
@@ -32,7 +32,7 @@ func update_image(image: Image) -> void:
 		ComputeHelper.rd.free_rid(texture)
 		image_format = image.get_format()
 		texture_size = image.get_size()
-		texture_format = ImageFormatHelper.create_rd_texture_format(image_format, texture_size)
+		texture_format = ImageFormatHelper.create_rd_texture_format(image_format, Vector3i(texture_size.x, texture_size.y, 0.0))
 		texture = ComputeHelper.rd.texture_create(texture_format, ComputeHelper.view, [image.get_data()])
 		rid_updated.emit(self)
 

@@ -55,10 +55,11 @@ static func convert_image_format_to_data_format(format: Image.Format) -> Renderi
 	return data_format
 
 ## Returns an [RDTextureFormat] with the [param format] and [param resolution] specified.
-static func create_rd_texture_format(format: Image.Format, resolution: Vector2i) -> RDTextureFormat:
+static func create_rd_texture_format(format: Image.Format, resolution: Vector3i) -> RDTextureFormat:
 	var texture_format := RDTextureFormat.new()
 	texture_format.width = resolution.x
 	texture_format.height = resolution.y
+	texture_format.depth = resolution.z
 	texture_format.format = ImageFormatHelper.convert_image_format_to_data_format(format)
 	texture_format.usage_bits = (
 		RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT +
@@ -66,4 +67,6 @@ static func create_rd_texture_format(format: Image.Format, resolution: Vector2i)
 		RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT +
 		RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
 	)
+	if resolution.z > 0.0:
+		texture_format.set_texture_type(2)
 	return texture_format
