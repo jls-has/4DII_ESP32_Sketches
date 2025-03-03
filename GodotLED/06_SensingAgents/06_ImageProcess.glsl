@@ -9,9 +9,12 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 layout(set = 0, binding = 0, std430) restrict readonly buffer custom_parameters {
 	float num_agents;
 	float agent_speed;
+	float turn_speed;
 	float fade_speed;
 	float blur_speed;
 	float blur_radius;
+	float sensor_radius;
+	float sensor_offset_dist;
 	float screen_width;
 	float screen_height;
 	float screen_depth;

@@ -18,9 +18,12 @@ layout(set = 0, binding = 1, std430) restrict buffer Velocities {
 layout(set = 0, binding = 2, std430) restrict readonly buffer custom_parameters {
 	float num_agents;
 	float agent_speed;
+	float turn_speed;
 	float fade_speed;
 	float blur_speed;
 	float blur_radius;
+	float sensor_radius;
+	float sensor_offset_dist;
 	float screen_width;
 	float screen_height;
 	float screen_depth;
@@ -34,7 +37,7 @@ layout(set = 0, binding = 2, std430) restrict readonly buffer custom_parameters 
 // declare texture inputs
 // the format should match the one we specified in the Godot script
 layout(set = 0, binding = 3, rgba32f) readonly restrict uniform image2D input_texture;
-layout(set = 0, binding = 4, rgba32f) writeonly restrict uniform image3D color_texture;
+layout(set = 0, binding = 4, rgba32f) restrict uniform image3D color_texture;
 
 
 
@@ -47,6 +50,26 @@ uint hash(uint state){
 	state ^= state >> 16;
 	state *= 2654435769u;
 	return state;
+}
+
+float sense(vec3 _pos){
+	float sum = 0.0;
+	vec3 sensor_pos = _pos  * params.sensor_offset_dist;
+	int radius = int(params.sensor_radius);
+
+	for (int x = -radius; x <= radius; x++){
+		for (int y = -radius; y <= radius; y++){
+			for (int z = -radius; z <= radius; z++){
+				vec3 pos = sensor_pos + vec3(x,y,z);
+				if (x >= 0 && x < params.screen_width && y >= 0 && y < params.screen_height && z >= 0 && z <params.screen_depth){
+					vec4 color = imageLoad(color_texture, ivec3(x, y, z));
+					sum += color.a;
+				}
+			}		
+		}
+	}
+
+	return sum;
 }
 
 void update_agents(){
@@ -75,8 +98,25 @@ void update_agents(){
 	}
 	
 
+	//steer based on sensory data
 	
+	float w_forward = sense(agent_pos + agent_vel);
+	float w_left = sense(agent_pos - vec3(1,0,0) + agent_vel);
+	float w_right = sense(agent_pos + vec3(1,0,0)+ agent_vel);
+	float w_up = sense(agent_pos - vec3(0,1,0)+ agent_vel);
+	float w_down = sense(agent_pos + vec3(0,1,0) +agent_vel);
+	float random_steer = randf;
+	
+	if (w_forward < w_left && w_forward < w_right && w_forward < w_up && w_forward <w_down){
+		//steer randomly if forward is weakest
+		agent_vel.x += (random_steer-0.5) * 2.0 * params.turn_speed * params.delta_time;
 
+	} else {
+		agent_vel.x += (w_right - w_left)*params.turn_speed*params.delta_time;
+		agent_vel.y += (w_down - w_up)*params.turn_speed*params.delta_time;
+		normalize(agent_vel);
+	}
+	
 	//move agent
 	vec3 new_pos = agent_pos + (agent_vel * params.agent_speed * params.delta_time);
 
@@ -94,6 +134,8 @@ void update_agents(){
 	vec4 texel = vec4(1.0,1.0,1.0,1.0);
 	imageStore(color_texture, texel_coords, texel);
 }
+
+
 
 void main() {
 	

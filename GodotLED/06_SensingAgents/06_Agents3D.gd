@@ -5,8 +5,11 @@ extends Node3D
 
 @export var agent_speed : float = 1;
 @export var fade_speed : float = 0.25;
+@export var turn_speed : float = 1.0;
 @export var blur_speed : float = 1.0;
 @export var blur_radius : float = 2;
+@export var sensor_radius : float = 1.0
+@export var sensor_offset_dist : float = 1.0
 var positions: PackedVector3Array 
 var velocities: PackedVector3Array 
 var color3D : Texture3DRD 
@@ -152,9 +155,12 @@ func update_shader_params()->void:
 	shader_parameters = [
 		num_agents,
 		agent_speed,
+		turn_speed,
 		fade_speed,
 		blur_speed,
 		blur_radius,
+		sensor_radius,
+		sensor_offset_dist,
 		LEDs.led_dimensions.x,
 		LEDs.led_dimensions.y,
 		LEDs.led_dimensions.z,

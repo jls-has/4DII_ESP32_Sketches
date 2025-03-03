@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://crbx8li8d6sn4"
+path="res://.godot/imported/07_ImageProcess.glsl-e6d269ad908744c6f79bbe2562f16aa2.res"
+
+[deps]
+
+source_file="res://07_SensingAgents_2D/07_ImageProcess.glsl"
+dest_files=["res://.godot/imported/07_ImageProcess.glsl-e6d269ad908744c6f79bbe2562f16aa2.res"]
+
+[params]
+

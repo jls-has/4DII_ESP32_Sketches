@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://55r611vlb6i7"]
+
+[ext_resource type="Script" path="res://07_SensingAgents_2D/07_agents.gd" id="1_7683e"]
+
+[node name="07_SensingAgents" type="TextureRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_7683e")
+num_agents = 100
+blur_radius = 3.0
+agent_shader_path = "res://07_SensingAgents_2D/07_Agents.glsl"
+image_shader_path = "res://07_SensingAgents_2D/07_ImageProcess.glsl"
