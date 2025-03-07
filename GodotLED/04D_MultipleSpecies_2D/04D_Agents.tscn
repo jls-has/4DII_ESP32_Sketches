@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://baeryhvtobbwo"]
+
+[ext_resource type="Script" uid="uid://bwx3qs2jms5rs" path="res://04D_MultipleSpecies_2D/04D_agents.gd" id="1_uhsah"]
+
+[node name="04D_MultipleAgents" type="TextureRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_uhsah")
+starting_dir = 2
+trail_weight = 100.0
+turn_speed = 200.0
+fade_speed = 20.0
+blur_speed = 1.0
+blur_radius = 2.0
+sensor_dist = 20.0
+sensor_angle = 0.5
+agent_shader_path = "uid://or5v4vkr3paa"
+image_shader_path = "uid://8kquok0eqaax"

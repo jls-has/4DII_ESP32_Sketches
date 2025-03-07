@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://8kquok0eqaax"
+path="res://.godot/imported/04D_ImageProcess.glsl-1c000137afd5b16ae821677e23159210.res"
+
+[deps]
+
+source_file="res://04D_MultipleSpecies_2D/04D_ImageProcess.glsl"
+dest_files=["res://.godot/imported/04D_ImageProcess.glsl-1c000137afd5b16ae821677e23159210.res"]
+
+[params]
+

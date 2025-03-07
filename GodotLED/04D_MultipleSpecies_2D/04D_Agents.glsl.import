@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://or5v4vkr3paa"
+path="res://.godot/imported/04D_Agents.glsl-032dc8f70a0e2e572993369c28aaed37.res"
+
+[deps]
+
+source_file="res://04D_MultipleSpecies_2D/04D_Agents.glsl"
+dest_files=["res://.godot/imported/04D_Agents.glsl-032dc8f70a0e2e572993369c28aaed37.res"]
+
+[params]
+

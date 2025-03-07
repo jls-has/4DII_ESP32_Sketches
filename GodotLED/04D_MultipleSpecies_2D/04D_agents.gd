@@ -3,9 +3,22 @@ extends TextureRect
 
 var positions: PackedVector4Array
 var velocities: PackedVector4Array
-
+var colors : PackedVector4Array
 @export_category("agent parameters")
-@export var num_agents :int = 2000000
+@export var reset := false:
+	set(value):
+		reset = false
+		if is_inside_tree():
+			_ready()
+@export var num_agents :int = 1000000
+
+@export_range(1,4,1) var num_species :int = 2
+@export_enum("RANDOMOUT", "RANDOMIN", "CENTEROUT", "CIRCLEIN", "RANDOM") var starting_dir = 0 :
+	set(value):
+		starting_dir = value
+		if is_inside_tree():
+			_ready()
+@export var trail_weight = 1.0;
 @export var agent_speed : float = 100;
 @export var turn_speed : float = 100;
 @export var fade_speed : float = 0.1; # 0-1?
@@ -14,9 +27,14 @@ var velocities: PackedVector4Array
 @export var sensor_dist : float = 1.0; #1-10?
 @export var sensor_angle : float = PI/2.0 
 @export var sensor_radius : float = 1.0
+@export var species0_color : Color = Color.RED
+@export var species1_color : Color = Color.GREEN
+@export var species2_color : Color = Color.BLUE
+@export var species3_color : Color = Color.WHITE
 var readied : bool = false
 var delta : float = 0.0
 var frame : int = 0
+
 
 #var texture_size := Vector2(texture_width, texture_height)
 @export var image_format := Image.FORMAT_RGBAF
@@ -28,6 +46,7 @@ var frame : int = 0
 # SHADER VARIABLES
 @export_file("*.glsl") var agent_shader_path : String 
 @export_file("*.glsl") var image_shader_path : String 
+
 var agent_shader : ComputeHelper
 var image_shader : ComputeHelper
 var agent_shader_groups : Vector3i
@@ -36,12 +55,16 @@ var input_texture : ImageUniform
 var output_texture : ImageUniform
 var velocities_buffer : StorageBufferUniform
 var positions_buffer : StorageBufferUniform
+var colors_buffer : StorageBufferUniform
 var shader_parameters_buffer : StorageBufferUniform
 var shader_parameters : PackedFloat32Array = [0.0] 
 
 func _ready() -> void:
+
 	randomize()
 	init_agents()
+	
+
 	RenderingServer.call_on_render_thread(init_agent_shader)
 	RenderingServer.call_on_render_thread(init_image_shader)
 	#print("before first frame", positions_buffer.get_data().to_float32_array())
@@ -61,12 +84,67 @@ func init_agents()->void:
 	positions = []
 	velocities = []
 	var screen_size : Vector2 = size
+	match starting_dir:
+		0: #randomout
+			for i in num_agents:
+				var pos_x : float = randf_range(0, screen_size.x)
+				var pos_y : float = randf_range(0, screen_size.y)
+				var vel := Vector2(1.0,1.0).rotated(randf()*TAU).normalized() 
+				positions.append(Vector4(pos_x, pos_y, 3.0,4.0))
+				velocities.append(Vector4(vel.x, vel.y, 3.0, 4.0 ))
+		1: #randomin
+			var pos_x : float = randf_range(0, screen_size.x)
+			var pos_y : float = randf_range(0, screen_size.y)
+			var vel := Vector2(pos_x,pos_y).direction_to(screen_size/2.0)
+		
+			positions.append(Vector4(pos_x, pos_y, 3.0,4.0))
+			velocities.append(Vector4(vel.x, vel.y, 3.0, 4.0 ))
+		2: #centerout
+			for i in num_agents:
+				var pos_x : float = screen_size.x/2.0
+				var pos_y : float = screen_size.y/2.0
+				var vel := Vector2(1.0,1.0).rotated(randf()*TAU).normalized() 
+				
+				positions.append(Vector4(pos_x, pos_y, 3.0,4.0))
+				
+				velocities.append(Vector4(vel.x, vel.y, 3.0, 4.0 ))
+		3: #circlein
+			for i in num_agents:
+				var theta : float = randf() * 2 * PI
+				var pos := Vector2(cos(theta), sin(theta)) * sqrt(randf())
+				var radius : float =  min(screen_size.x, screen_size.y) /2.0
+				pos = pos * radius
+				pos += screen_size/2.0
+				var vel := pos.direction_to(screen_size/2.0)
+				
+				positions.append(Vector4(pos.x, pos.y, 3.0,4.0))
+				velocities.append(Vector4(vel.x, vel.y, 3.0, 4.0 ))
+				
+		4: # all things totally random
+			for i in num_agents:
+				var pos_x : float = randf_range(0, screen_size.x)
+				var pos_y : float = randf_range(0, screen_size.y)
+				var vel := Vector2(1.0,1.0).rotated(randf()*TAU).normalized() 
+				var species : float = randi_range(0, num_species-1)
+				positions.append(Vector4(pos_x, pos_y, 3.0,species))
+				velocities.append(Vector4(vel.x, vel.y, 3.0, 4.0 ))
+	
+	colors = []
 	for i in num_agents:
-		var pos_x : float = screen_size.x/2.0
-		var pos_y : float = screen_size.y/2.0
-		var vel := Vector2(1.0,1.0).rotated(randf()*TAU).normalized() 
-		positions.append(Vector4(pos_x, pos_y, 3.0,4.0))
-		velocities.append(Vector4(vel.x, vel.y, 3.0, 4.0 ))
+		var s : int = randi()%num_species
+		var color : Color
+		match s:
+			0: 
+				color = species0_color
+			1:
+				color= species1_color
+			2:
+				color = species2_color
+			3:
+				color = species3_color
+		colors.append(Vector4(color.r,color.g,color.b,color.a))
+		
+		
 	
 
 func init_agent_shader():
@@ -85,6 +163,7 @@ func init_agent_shader():
 	
 	# init empty buffer for shader uniforms
 	#agents_data_buffer = StorageBufferUniform.create(agents_data.to_byte_array())
+	colors_buffer = StorageBufferUniform.create(colors.to_byte_array())
 	positions_buffer = StorageBufferUniform.create(positions.to_byte_array())
 	velocities_buffer = StorageBufferUniform.create(velocities.to_byte_array())
 	shader_parameters_buffer = StorageBufferUniform.create(shader_parameters.to_byte_array())
@@ -99,9 +178,12 @@ func init_agent_shader():
 	agent_shader.add_uniform_array([
 		positions_buffer,
 		velocities_buffer,
+		colors_buffer,
 		shader_parameters_buffer, 
 		input_texture, 
 		output_texture])
+	
+	var color_read = colors_buffer.get_data().to_float32_array()
 
 func init_image_shader():
 
@@ -133,6 +215,7 @@ func update_shaders():
 	var screen_size : Vector2= size
 	shader_parameters = [
 		num_agents,
+		trail_weight,
 		agent_speed,
 		turn_speed,
 		fade_speed,
@@ -147,7 +230,7 @@ func update_shaders():
 		brightness,
 		contrast,
 		delta,
-		frame	]
+		frame,	]
 
 	# send shader_parameters to shader
 	shader_parameters_buffer.update_data(PackedFloat32Array(shader_parameters).to_byte_array())
