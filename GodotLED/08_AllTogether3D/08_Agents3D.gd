@@ -68,6 +68,7 @@ func _process(_delta: float) -> void:
 func init_agents()->void:
 	positions = []
 	velocities = []
+	colors = []
 	
 	for a in num_agents:
 		#random positions
@@ -86,7 +87,7 @@ func init_agents()->void:
 		positions.append(Vector4(agent_pos.x,agent_pos.y,agent_pos.z, 4.0))
 		var agent_vel := Vector4(randf_range(-1,1),randf_range(-1,1),randf_range(-1,1),4.0).normalized()
 		velocities.append(agent_vel)
-		colors = []
+		
 		
 		var s : int = randi()%num_species
 		var color : Color
@@ -135,6 +136,7 @@ func init_agent_shader()->void:
 	print('colors text rd rid: ', output3D.texture_rd_rid)
 	print("leds: ",LEDs.material_override.get_shader_parameter("color3D").texture_rd_rid)
 	# add uniforms to shader pipeline
+
 	agent_shader.add_uniform_array([
 		positions_buffer,
 		velocities_buffer,
@@ -152,9 +154,9 @@ func init_image_shader():
 	# calculate number of work groups
 	# calculate number of work groups
 	var screen_size :Vector3i= LEDs.led_dimensions
-	var x_groups : int = (screen_size.x - 1) / 8.0 + 1
-	var y_groups : int = (screen_size.y - 1) / 8.0 + 1
-	var z_groups : int=  (screen_size.z - 1) / 8.0 + 1
+	var x_groups : int = int((screen_size.x - 1) / 8.0 + 1)
+	var y_groups : int = int((screen_size.y - 1) / 8.0 + 1)
+	var z_groups : int=  int((screen_size.z - 1) / 8.0 + 1)
 	image_shader_groups = Vector3i(x_groups, y_groups, z_groups)
 	
 	# add uniforms to shader pipeline

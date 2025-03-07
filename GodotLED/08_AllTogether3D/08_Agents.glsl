@@ -43,7 +43,7 @@ layout(set = 0, binding = 3, std430) restrict readonly buffer custom_parameters 
 // declare texture inputs
 // the format should match the one we specified in the Godot script
 layout(set = 0, binding = 4, rgba32f) readonly restrict uniform image2D input_texture;
-layout(set = 0, binding = 5, rgba32f) restrict uniform image3D color_texture;
+layout(set = 0, binding = 5, rgba32f) restrict uniform image3D output_texture;
 
 
 
@@ -58,27 +58,101 @@ uint hash(uint state){
 	return state;
 }
 
-/*
-float sense(vec3 _pos){
-	float sum = 0.0;
-	vec3 sensor_pos = _pos  * params.sensor_offset_dist;
-	int radius = int(params.sensor_radius);
+vec3 get_left_sensor(vec3 _v){
+	vec3 v = _v;
+	float a = params.sensor_angle;
+	float s = sin(-a);
+	float c = cos(-a);
+	vec2 dir = vec2(
+		v.x * c - v.y * s,
+		v.x * s + v.y * c
+	);
+	return vec3(dir.x,dir.y,0);
+}
 
-	for (int x = -radius; x <= radius; x++){
-		for (int y = -radius; y <= radius; y++){
-			for (int z = -radius; z <= radius; z++){
-				vec3 pos = sensor_pos + vec3(x,y,z);
-				if (x >= 0 && x < params.screen_width && y >= 0 && y < params.screen_height && z >= 0 && z <params.screen_depth){
-					vec4 color = imageLoad(color_texture, ivec3(x, y, z));
-					sum += color.a;
+vec3 get_right_sensor(vec3 _v){
+	vec3 v = _v;
+	float a = params.sensor_angle;
+	float s = sin(a);
+	float c = cos(a);
+	vec2 dir = vec2(
+		v.x * c - v.y * s,
+		v.x * s + v.y * c
+	);
+	return vec3(dir.x,dir.y,0);
+}
+vec3 get_up_sensor(vec3 _v){
+	vec3 v = _v;
+	float a = params.sensor_angle;
+	float s = sin(-a);
+	float c = cos(-a);
+	vec2 dir = vec2(
+		v.x * c - v.y * s,
+		v.x * s + v.y * c
+	);
+	return vec3(dir.x,dir.y,0);
+}
+
+vec3 get_down_sensor(vec3 _v){
+	vec3 v = _v;
+	float a = params.sensor_angle;
+	float s = sin(a);
+	float c = cos(a);
+	vec2 dir = vec2(
+		v.x * c - v.y * s,
+		v.x * s + v.y * c
+	);
+	return vec3(dir.x,dir.y,0);
+}
+
+vec3 get_random_dir(){
+	uint randi = hash(uint(params.frame));
+	float randf = randi / 4294967295.0;
+	randf = (randf - 0.5) * 2.0;
+	vec3 v = vec3(1,1,1) ;
+	float a = params.sensor_angle;
+	float s = sin(randf);
+	float c = cos(randf);
+	vec2 dir = vec2(
+		v.x * c - v.y * s,
+		v.x * s + v.y * c
+	);
+	return vec3(dir.x,dir.y,0);
+}
+
+vec3 get_direction_from_angle(vec3 _vel, float _theta){
+	vec3 v = _vel;
+	float a = _theta;
+	a = a * params.turn_speed * params.delta_time;
+	float s = sin(a);
+	float c = cos(a);
+	vec2 dir = vec2(
+		v.x * c - v.y * s,
+		v.x * s + v.y * c
+	);
+	return vec3(dir.x,dir.y,0);
+
+}
+
+vec4 sense(vec3 _sensor) {
+	vec4 sum = vec4(0,0,0,0);
+	int r = int(params.sensor_radius);
+
+	for (int x = -r; x<= r; x++){
+		for (int y = -r; y <= r; y++){
+			for (int z = -r; z <= r; z++){
+				ivec3 pos = ivec3(_sensor) + ivec3(x,y,z);
+				if (pos.x >= 0 && pos.x < params.screen_width && pos.y >=0 && pos.y < params.screen_height && pos.z >=0 && pos.z < params.screen_depth){
+					//sum += imageLoad(output_texture, ivec2(pos.x, pos.y));
+					vec4 trail_map = imageLoad(output_texture, ivec3(pos.x, pos.y, pos.z));
+					sum += dot(trail_map, col.data[int(gl_GlobalInvocationID.x)]*2-1);
 				}
-			}		
+			}
 		}
 	}
-
 	return sum;
 }
-*/
+
 
 void update_agents(){
 	
@@ -91,7 +165,71 @@ void update_agents(){
 	uint randi = hash(uint(agent_pos.y * params.screen_width + agent_pos.x + hash(uint(agent_index))));
 	float randf = randi / 4294967295.0;
 
-	//add screen edge behavior
+	//move agent   ....the other code has this before
+	agent_pos = agent_pos + (agent_vel * params.agent_speed * params.delta_time);
+
+	
+	
+
+	//get turn_directions
+	vec3 turn_left = get_left_sensor(agent_vel);
+	vec3 turn_right = get_right_sensor(agent_vel);
+	vec3 turn_up = vec3(0,turn_left.x, turn_left.y);
+	vec3 turn_down = vec3(0,turn_right.x, turn_right.y);
+		//init sensors
+	vec3 left = vec3(agent_pos + turn_left * params.sensor_distance);
+	vec3 front = vec3(agent_pos + agent_vel * params.sensor_distance);
+	vec3 right = vec3(agent_pos + turn_right * params.sensor_distance);
+	vec3 up = vec3(agent_pos + turn_up * params.sensor_distance);
+	vec3 down = vec3(agent_pos + turn_down * params.sensor_distance);
+
+	//sense
+	float w_l= sense(left).a;
+	float w_f= sense(front).a;
+	float w_r= sense(right).a;
+	float w_u = sense(up).a;
+	float w_d = sense(down).a;
+	//choosedirection
+	if (w_f > w_l && w_f > w_r){
+		agent_vel = agent_vel;
+	} else if (w_f < w_l && w_f < w_r && w_f < w_d && w_f < w_d){
+		
+		//agent_vel += normalize(get_direction_from_angle(agent_vel, ((randf - 0.5)*2.0) ))* params.turn_speed * params.delta_time;
+		vec3 dir = normalize(get_direction_from_angle(agent_vel, ((randf - 0.5)*2.0) ))* params.turn_speed * params.delta_time;
+		agent_vel += dir;
+		agent_vel += vec3(0.0, dir.x, dir.y);
+		/*
+		uint randi0 = hash(uint(agent_pos.y * params.screen_width + agent_pos.x + hash(uint(agent_index))));
+		float randf0 = randi0 / 4294967295.0;
+		uint randi1 = hash(uint(agent_pos.z * params.screen_width + agent_pos.y + hash(uint(agent_index))));
+		float randf1 = randi0 / 4294967295.0;
+		uint randi2 = hash(uint(agent_pos.x * params.screen_width + agent_pos.z + hash(uint(agent_index))));
+		float randf2 = randi0 / 4294967295.0;
+		agent_vel.x += (randi0 - 0.5)*2.0* params.turn_speed * params.delta_time;
+		agent_vel.y += (randi1 - 0.5)*2.0* params.turn_speed * params.delta_time;
+		agent_vel.z += (randi2 - 0.5)*2.0* params.turn_speed * params.delta_time;
+		*/
+	}else {
+		if (w_l > w_r){
+		agent_vel -=normalize(get_direction_from_angle(agent_vel, randf)) * params.turn_speed * params.delta_time;
+		} else if (w_r > w_l ){
+		agent_vel += normalize(get_direction_from_angle(agent_vel, randf)) * params.turn_speed * params.delta_time;
+		}
+
+		if (w_u > w_d ){
+		vec3 new_vel = normalize(get_direction_from_angle(agent_vel, randf)) * params.turn_speed * params.delta_time;
+		agent_vel -= vec3(0.0, new_vel.x, new_vel.y);
+		} else if (w_d> w_u){
+		vec3 new_vel = normalize(get_direction_from_angle(agent_vel, randf)) * params.turn_speed * params.delta_time;
+		agent_vel += vec3(0.0, new_vel.x, new_vel.y);
+		}
+
+	} 
+
+	
+		agent_vel = normalize(agent_vel);
+
+		//add screen edge behavior
 	if (agent_pos.x >= params.screen_width || agent_pos.x <= 0.0){
 		agent_vel.x *= -1.0;
 		agent_vel = normalize(agent_vel);
@@ -105,43 +243,41 @@ void update_agents(){
 		agent_vel = normalize(agent_vel);
 	}
 	
-	/*
-
-	//steer based on sensory data
+/*
+		//show sensors
+	vec4 red = vec4(1,0,0,1);
+	imageStore(output_texture, ivec3(left.x, left.y, left.z), red);
+	vec4 green = vec4(0,1,0,1);
+	imageStore(output_texture, ivec3(front.x, front.y, front.z), green);
+	vec4 blue = vec4(0,0,1,1);
+	imageStore(output_texture, ivec3(right.x, right.y, front.z), blue);
+	vec4 yellow = vec4(1,1,0,1);
+	imageStore(output_texture, ivec3(up.x, up.y, up.z), yellow);
+	vec4 magenta = vec4(1,0,1,1);
+	imageStore(output_texture, ivec3(down.x, down.y, down.z), magenta);
 	
-	float w_forward = sense(agent_pos + agent_vel);
-	float w_left = sense(agent_pos - vec3(1,0,0) + agent_vel);
-	float w_right = sense(agent_pos + vec3(1,0,0)+ agent_vel);
-	float w_up = sense(agent_pos - vec3(0,1,0)+ agent_vel);
-	float w_down = sense(agent_pos + vec3(0,1,0) +agent_vel);
-	float random_steer = randf;
-	
-	if (w_forward < w_left && w_forward < w_right && w_forward < w_up && w_forward <w_down){
-		//steer randomly if forward is weakest
-		agent_vel.x += (random_steer-0.5) * 2.0 * params.turn_speed * params.delta_time;
-
-	} else {
-		agent_vel.x += (w_right - w_left)*params.turn_speed*params.delta_time;
-		agent_vel.y += (w_down - w_up)*params.turn_speed*params.delta_time;
-		normalize(agent_vel);
-	}
 	*/
-	//move agent
-	vec3 new_pos = agent_pos + (agent_vel * params.agent_speed * params.delta_time);
+	
+	//move agent   ....the other code has this before
+	//agent_pos = agent_pos + (agent_vel * params.agent_speed * params.delta_time);
 
-
+	
 	if (params.frame < 1.0){
-		new_pos = vec3(params.screen_width/2.0, params.screen_height/2.0, params.screen_depth/2.0);
+		agent_pos = vec3(params.screen_width/2.0, params.screen_height/2.0, params.screen_depth/2.0);
 	}
+	
 
 	//
-	pos.data[agent_index] = vec3(new_pos.x, new_pos.y,new_pos.z);
+	pos.data[agent_index] = vec3(agent_pos.x, agent_pos.y, agent_pos.z);
 	vel.data[agent_index] = vec3(agent_vel.x, agent_vel.y, agent_vel.z);
 
 	//draw
-	ivec3 texel_coords = ivec3(new_pos.x, new_pos.y, new_pos.z);
-	vec4 texel = vec4(1.0,1.0,1.0,1.0);
-	imageStore(color_texture, texel_coords, texel);
+	ivec3 texel_coords = ivec3(agent_pos.x, agent_pos.y, agent_pos.z);
+	vec4 prev_texel = imageLoad(output_texture, texel_coords);
+	vec4 cur_texel = col.data[agent_index] ;
+	float alpha =  params.trail_weight * params.delta_time;
+	vec4 texel = mix(prev_texel, cur_texel, alpha);
+	imageStore(output_texture, texel_coords, texel);
 }
 
 

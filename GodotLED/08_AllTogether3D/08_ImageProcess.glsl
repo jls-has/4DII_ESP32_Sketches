@@ -87,48 +87,5 @@ void main() {
 	blurred_value.a = max(0, blurred_value.a - params.fade_speed*params.delta_time);
 	imageStore(output_texture, id, blurred_value);
 
-	/*
-	//blur over time
-	int sample_radius = int(params.blur_radius);
-	int samples = 0;
-	vec4 sum = vec4(0,0,0,0);
-	for (int offset_x = -sample_radius; offset_x < sample_radius; offset_x ++){
-		for (int offset_y = -sample_radius; offset_y < sample_radius; offset_y ++){
-			for (int offset_z = -sample_radius; offset_z < sample_radius; offset_z ++){
-				int sample_x = id.x + offset_x;
-				int sample_y = id.y + offset_y;
-				int sample_z = id.z + offset_z;
-				samples++;
-			
-
-				if (sample_x >= 0 && sample_x < params.screen_width && sample_y >= 0 && sample_y < params.screen_height && sample_z >= 0 && sample_z <params.screen_depth){
-					sum += imageLoad(color_texture, ivec3(sample_x, sample_y, sample_z));
-					
-				}
-			}
-		}
-	}
-
-	vec4 blur_result = sum / float(samples);
-
-	vec4 blurred_value = mix(texel, blur_result, params.blur_speed*params.delta_time);
-
-	//add the fade
-	blurred_value.a = max(0, blurred_value.a - params.fade_speed*params.delta_time);
-
-	imageStore(color_texture, id, blurred_value);
-
-	//create random output
-	//uint pixelIndex = uint(gl_GlobalInvocationID.y * params.screen_width + gl_GlobalInvocationID.x);
-	//uint psuedoRandomNumber = hash(pixelIndex);
-	//float r = psuedoRandomNumber / 4294967295.0;
-	//vec4 texel = vec4(r,r,r,1.0);
-
-  	// apply the function to the texel
-	//texel = brightnessContrast(texel,params.brightness,params.contrast);
-
-	// write modified pixels to output texture
-	//imageStore(output_texture, texel_coords, texel);
- */
 }
 	
