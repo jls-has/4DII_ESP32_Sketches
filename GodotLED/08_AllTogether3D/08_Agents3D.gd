@@ -1,18 +1,31 @@
 extends Node3D
 
 @export_category("agent")
+@export var restart := false :
+	set(value):
+		restart = false
+		if is_inside_tree():
+			_ready()
 @export var num_agents :int = 2000 
-
+@export_range(1,4,1) var num_species :int = 2
 @export var agent_speed : float = 1;
+@export var trail_weight = 1.0;
 @export var fade_speed : float = 0.25;
 @export var turn_speed : float = 1.0;
 @export var blur_speed : float = 1.0;
 @export var blur_radius : float = 2;
+@export var sensor_dist : float = 1.0; #1-10?
+@export var sensor_angle : float = PI/2.0 
 @export var sensor_radius : float = 1.0
-@export var sensor_offset_dist : float = 1.0
-var positions: PackedVector3Array 
-var velocities: PackedVector3Array 
-var color3D : Texture3DRD 
+@export var species0_color : Color = Color.RED
+@export var species1_color : Color = Color.GREEN
+@export var species2_color : Color = Color.BLUE
+@export var species3_color : Color = Color.WHITE
+var positions: PackedVector4Array 
+var velocities: PackedVector4Array 
+var colors : PackedVector4Array
+
+var output3D : Texture3DRD 
 
 @export_category("Image Manipulation")
 @export var brightness : float = 1.0
@@ -35,9 +48,10 @@ var image_shader : ComputeHelper
 var agent_shader_groups : Vector3i
 var image_shader_groups : Vector3i
 var input_image_uniform : ImageUniform
-var color3D_uniform : Image3DUniform
+var output3D_uniform : Image3DUniform
 var velocities_buffer : StorageBufferUniform
 var positions_buffer : StorageBufferUniform
+var colors_buffer : StorageBufferUniform
 var shader_parameters_buffer : StorageBufferUniform
 var shader_parameters : PackedFloat32Array = [0.0] 
 
@@ -69,15 +83,29 @@ func init_agents()->void:
 			LEDs.led_dimensions.z/2.0)
 			
 			
-		positions.append(agent_pos)
-		var agent_vel := Vector3(randf_range(-1,1),randf_range(-1,1),randf_range(-1,1)).normalized()
+		positions.append(Vector4(agent_pos.x,agent_pos.y,agent_pos.z, 4.0))
+		var agent_vel := Vector4(randf_range(-1,1),randf_range(-1,1),randf_range(-1,1),4.0).normalized()
 		velocities.append(agent_vel)
+		colors = []
+		
+		var s : int = randi()%num_species
+		var color : Color
+		match s:
+			0: 
+				color = species0_color
+			1:
+				color= species1_color
+			2:
+				color = species2_color
+			3:
+				color = species3_color
+		colors.append(Vector4(color.r,color.g,color.b,color.a))
 	
 func init_agent_shader()->void:
 
 	# assign Texture2DRD to current texture so that its data could be synced with data on GPU
-	color3D = Texture3DRD.new()
-	LEDs.material_override.set_shader_parameter("color3D", color3D)
+	output3D = Texture3DRD.new()
+	LEDs.material_override.set_shader_parameter("color3D", output3D)
 	
 	# init shader and shader pipeline
 	agent_shader = ComputeHelper.create(agent_shader_path)
@@ -92,26 +120,28 @@ func init_agent_shader()->void:
 	#agents_data_buffer = StorageBufferUniform.create(agents_data.to_byte_array())
 	positions_buffer = StorageBufferUniform.create(positions.to_byte_array())
 	velocities_buffer = StorageBufferUniform.create(velocities.to_byte_array())
+	colors_buffer = StorageBufferUniform.create(colors.to_byte_array())
 	shader_parameters_buffer = StorageBufferUniform.create(shader_parameters.to_byte_array())
 	
-	var color3D_image_size :Vector3i= LEDs.led_dimensions
+	var output3D_size :Vector3i= LEDs.led_dimensions
 	#init texture buffers
-	var color3D_image = Image.create(color3D_image_size.x, color3D_image_size.y, false, image_format)
-	color3D_uniform = Image3DUniform.create(color3D_image, color3D_image_size.z)
-	input_image_uniform = ImageUniform.create(color3D_image)
+	var output3D_image = Image.create(output3D_size.x, output3D_size.y, false, image_format)
+	output3D_uniform = Image3DUniform.create(output3D_image, output3D_size.z)
+	input_image_uniform = ImageUniform.create(output3D_image)
 
-	color3D.texture_rd_rid = color3D_uniform.texture
+	output3D.texture_rd_rid = output3D_uniform.texture
 	#color3D.set_texture_rd_rid(color_image_uniform.texture)
-	print("uniform rid: ", color3D_uniform.texture)
-	print('colors text rd rid: ', color3D.texture_rd_rid)
+	print("uniform rid: ", output3D_uniform.texture)
+	print('colors text rd rid: ', output3D.texture_rd_rid)
 	print("leds: ",LEDs.material_override.get_shader_parameter("color3D").texture_rd_rid)
 	# add uniforms to shader pipeline
 	agent_shader.add_uniform_array([
 		positions_buffer,
 		velocities_buffer,
+		colors_buffer,
 		shader_parameters_buffer, 
 		input_image_uniform, 
-		color3D_uniform])
+		output3D_uniform])
 
 func init_image_shader():
 
@@ -122,16 +152,16 @@ func init_image_shader():
 	# calculate number of work groups
 	# calculate number of work groups
 	var screen_size :Vector3i= LEDs.led_dimensions
-	var x_groups : int =int( (screen_size.x - 1) / 8.0 + 1)
-	var y_groups : int = int( (screen_size.y - 1) / 8.0 + 1 )
-	var z_groups : int= int( (screen_size.z - 1) / 8.0 + 1 )
+	var x_groups : int = (screen_size.x - 1) / 8.0 + 1
+	var y_groups : int = (screen_size.y - 1) / 8.0 + 1
+	var z_groups : int=  (screen_size.z - 1) / 8.0 + 1
 	image_shader_groups = Vector3i(x_groups, y_groups, z_groups)
 	
 	# add uniforms to shader pipeline
 	image_shader.add_uniform_array([
 		shader_parameters_buffer, 
 		input_image_uniform, 
-		color3D_uniform])
+		output3D_uniform])
 		
 func update_shaders()->void:
 
@@ -154,13 +184,15 @@ func update_shaders()->void:
 func update_shader_params()->void:
 	shader_parameters = [
 		num_agents,
+		trail_weight,
 		agent_speed,
 		turn_speed,
 		fade_speed,
 		blur_speed,
 		blur_radius,
+		sensor_dist,
+		sensor_angle,
 		sensor_radius,
-		sensor_offset_dist,
 		LEDs.led_dimensions.x,
 		LEDs.led_dimensions.y,
 		LEDs.led_dimensions.z,

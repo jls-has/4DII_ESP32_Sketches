@@ -3,7 +3,7 @@ class_name Image3DUniform
 ## [Uniform] corresponding to a texture. Given to the shader as an image.
 
 var texture: RID ## The [RID] of the corresponding texture. Used internally.
-var texture_size: Vector2i ## The resolution of the texture.
+var texture_size: Vector3i ## The resolution of the texture.
 var image_format: Image.Format ## The [enum Image.Format] of the texture.
 var texture_format: RDTextureFormat ## The [RDTextureFormat] of the texture.
 
@@ -11,9 +11,9 @@ var texture_format: RDTextureFormat ## The [RDTextureFormat] of the texture.
 static func create(image: Image, depth: int) -> Image3DUniform:
 	var uniform := Image3DUniform.new()
 
-	uniform.texture_size = image.get_size()
+	uniform.texture_size = Vector3(image.get_size().x, image.get_size().y, depth)
 	uniform.image_format = image.get_format()
-	uniform.texture_format = ImageFormatHelper.create_rd_texture_format(uniform.image_format,Vector3i(uniform.texture_size.x, uniform.texture_size.y, depth))
+	uniform.texture_format = Image3DFormatHelper.create_rd_texture_format(uniform.image_format,uniform.texture_size)
 	#print(uniform.texture_format.get_texture_type())
 	
 	#For array layers
@@ -40,14 +40,15 @@ func get_rd_uniform(binding: int) -> RDUniform:
 	return uniform
 
 ## Updates the texture to match [param image].
-func update_image(image: Image, depth) -> void:
-	if texture_size == image.get_size() and image_format == image.get_format():
-		ComputeHelper.rd.texture_update(texture, 0, image.get_data())
+func update_image(image: Image, depth: int) -> void:
+	if texture_size == Vector3i(image.get_size().x, image.get_size().y, depth) and image_format == image.get_format():
+		for layer in depth:
+			ComputeHelper.rd.texture_update(texture, layer, image.get_data())
 	else:
 		ComputeHelper.rd.free_rid(texture)
 		image_format = image.get_format()
-		texture_size = image.get_size()
-		texture_format = ImageFormatHelper.create_rd_texture_format(image_format, Vector3i(texture_size.x,texture_size.y, depth))
+		texture_size = Vector3i(image.get_size().x, image.get_size().y, depth)
+		texture_format = Image3DFormatHelper.create_rd_texture_format(image_format, Vector3i(texture_size.x,texture_size.y, depth))
 		texture = ComputeHelper.rd.texture_create(texture_format, ComputeHelper.view, [image.get_data()])
 		rid_updated.emit(self)
 

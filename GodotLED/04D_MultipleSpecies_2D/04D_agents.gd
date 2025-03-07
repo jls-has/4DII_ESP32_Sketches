@@ -183,7 +183,7 @@ func init_agent_shader():
 		input_texture, 
 		output_texture])
 	
-	var color_read = colors_buffer.get_data().to_float32_array()
+	#var color_read = colors_buffer.get_data().to_float32_array()
 
 func init_image_shader():
 
@@ -270,7 +270,7 @@ func _on_contrast_slider_value_changed(value):
 	# change second value in shader_parameters array (contrast)
 	#now done in update code
 	#shader_parameters[1] = value 
-
+ 
 	# execute shader
 	RenderingServer.call_on_render_thread(update_shaders)
 	#update_shader(shader_parameters)

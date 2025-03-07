@@ -145,6 +145,15 @@ vec3 get_direction_from_angle(vec3 _vel, float _theta){
 
 }
 
+vec4 overlay(vec4 base, vec4 blend){
+	vec4 limit = step(0.5, base);
+	return mix(2.0 * base * blend, 1.0 - 2.0 * (1.0 - base) * (1.0 - blend), limit);
+}
+vec4 color_dodge(vec4 base, vec4 blend){
+	return base / (1.0 - blend);
+}
+
+
 
 void main() {
 	
@@ -221,16 +230,13 @@ void main() {
 	ivec2 texel_coords = ivec2(agent_pos.x, agent_pos.y);
 
 	vec4 prev_texel = imageLoad(output_texture, texel_coords);
-	float prev_alpha = prev_texel.a;
-	prev_texel *= prev_alpha;
-	prev_texel.a = prev_alpha;
 
-	vec4 cur_texel = col.data[agent_index];
-	float cur_alpha = params.trail_weight * params.delta_time;
-	cur_texel *= cur_alpha;
-	cur_texel.a = cur_alpha;
 
-	vec4 texel =  cur_texel; //trailweight * deltaTime * color
+	vec4 cur_texel = col.data[agent_index] ;
+	float alpha =  params.trail_weight * params.delta_time;
+
+
+	vec4 texel = mix(prev_texel,cur_texel, alpha); //trailweight * deltaTime * color
 	imageStore(output_texture, texel_coords, texel);
 
 }
