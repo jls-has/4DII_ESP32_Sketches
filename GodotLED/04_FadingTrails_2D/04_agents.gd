@@ -1,6 +1,6 @@
 extends TextureRect
 
-var num_agents :int = 2000
+var num_agents :int = 3
 var positions: PackedVector3Array
 var velocities: PackedVector3Array
 @export_category("agent parameters")
@@ -42,6 +42,11 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	delta = _delta
 	RenderingServer.call_on_render_thread(update_shaders)
+	
+	
+	
+	if Input.is_action_just_pressed("ui_cancel"):
+		get_tree().quit()
 
 func init_agents()->void:
 	positions = []
@@ -99,8 +104,8 @@ func init_image_shader():
 	# calculate number of work groups
 	# calculate number of work groups
 	var screen_size :Vector2= size
-	var x_groups : int = (screen_size.x - 1) / 8.0 + 1
-	var y_groups : int = (screen_size.y - 1) / 8.0 + 1
+	var x_groups := int((screen_size.x - 1) / 8.0 + 1)
+	var y_groups := int((screen_size.y - 1) / 8.0 + 1 )
 	var z_groups : int= 1
 	image_shader_groups = Vector3i(x_groups, y_groups, z_groups)
 	
@@ -138,8 +143,8 @@ func update_shaders():
 	agent_shader.run(agent_shader_groups)
 	image_shader.run(image_shader_groups)
 	
-	#var positions_read : PackedFloat32Array = positions_buffer.get_data().to_float32_array()
-	
+	var positions_read : PackedFloat32Array = positions_buffer.get_data().to_float32_array()
+	print(positions_read)
 	for i in 10:
 		#print(frame, ": agent", i, ": ", new_agent_array[3*i], " ", new_agent_array[(3*i)+1])
 		pass

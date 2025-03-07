@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://cvup63igy22eq"]
+
+[ext_resource type="Script" uid="uid://dhx6nny337amm" path="res://04C_Attraction_2D/04C_agents.gd" id="1_tw7kg"]
+
+[node name="04C_SensingAgents" type="TextureRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tw7kg")
+blur_speed = 1.0
+blur_radius = 10.0
+sensor_dist = 10.0
+sensor_angle = 0.5
+agent_shader_path = "uid://ubk1eg06xxd"
+image_shader_path = "uid://bys84gpg8xpfn"

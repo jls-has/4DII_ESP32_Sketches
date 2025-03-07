@@ -60,12 +60,14 @@ void update_agents(){
 	float randf = randi / 4294967295.0;
 
 	//add screen edge behavior
-	if (agent_pos.x >= params.screen_width-100 || agent_pos.x <= 100.0){
+	if (agent_pos.x >= params.screen_width-1 || agent_pos.x <=1){
 		agent_vel.x *= -1.0;
+
 		agent_vel = normalize(agent_vel);
 	}
-	if (agent_pos.y >= params.screen_height-100 || agent_pos.y <= 100.0){
+	if (agent_pos.y >= params.screen_height-1 || agent_pos.y <= 1){
 		agent_vel.y *= -1.0;
+	
 		agent_vel = normalize(agent_vel);
 	}
 	

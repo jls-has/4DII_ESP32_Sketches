@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://ddkjn46xkmp84"
+path="res://.godot/imported/04B_Agents.glsl-edd682f6b62f9a3ee9edef618cb95f9f.res"
+
+[deps]
+
+source_file="res://04B_BlurredTrails_2D/04B_Agents.glsl"
+dest_files=["res://.godot/imported/04B_Agents.glsl-edd682f6b62f9a3ee9edef618cb95f9f.res"]
+
+[params]
+

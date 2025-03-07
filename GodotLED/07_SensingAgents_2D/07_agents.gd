@@ -132,7 +132,7 @@ func update_shaders():
 		sensor_offset_dist,
 		screen_size.x, 
 		screen_size.y,
-		0.0,
+		0.0, #screen_size.z
 		brightness,
 		contrast,
 		delta,

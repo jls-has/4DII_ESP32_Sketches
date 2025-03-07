@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bqtu7g3wmw5cl"]
 
-[ext_resource type="Script" path="res://01_RandomOutput/01_random_output.gd" id="1_h011p"]
+[ext_resource type="Script" uid="uid://cd66kdyrjs5hj" path="res://01_RandomOutput/01_random_output.gd" id="1_h011p"]
 
 [node name="01RandomOutput" type="TextureRect"]
 anchors_preset = 15

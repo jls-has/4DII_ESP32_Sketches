@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bys84gpg8xpfn"
+path="res://.godot/imported/04C_ImageProcess.glsl-c555e0ac996ac3063ce676be7b0f78bf.res"
+
+[deps]
+
+source_file="res://04C_Attraction_2D/04C_ImageProcess.glsl"
+dest_files=["res://.godot/imported/04C_ImageProcess.glsl-c555e0ac996ac3063ce676be7b0f78bf.res"]
+
+[params]
+

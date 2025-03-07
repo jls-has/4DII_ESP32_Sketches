@@ -7,12 +7,14 @@ var texture_size: Vector2i ## The resolution of the texture.
 var image_format: Image.Format ## The [enum Image.Format] of the texture.
 var texture_format: RDTextureFormat ## The [RDTextureFormat] of the texture.
 
+signal async_image_retrieved(image: Image)
+
 ## Returns a new ImageUniform object using the given [param image].
 static func create(image: Image) -> ImageUniform:
 	var uniform := ImageUniform.new()
 	uniform.texture_size = image.get_size()
 	uniform.image_format = image.get_format()
-	uniform.texture_format = ImageFormatHelper.create_rd_texture_format(uniform.image_format, Vector3(uniform.texture_size.x, uniform.texture_size.y, 0.0))
+	uniform.texture_format = ImageFormatHelper.create_rd_texture_format(uniform.image_format, uniform.texture_size)
 	uniform.texture = ComputeHelper.rd.texture_create(uniform.texture_format, ComputeHelper.view, [image.get_data()])
 	return uniform
 
@@ -32,7 +34,7 @@ func update_image(image: Image) -> void:
 		ComputeHelper.rd.free_rid(texture)
 		image_format = image.get_format()
 		texture_size = image.get_size()
-		texture_format = ImageFormatHelper.create_rd_texture_format(image_format, Vector3i(texture_size.x, texture_size.y, 0.0))
+		texture_format = ImageFormatHelper.create_rd_texture_format(image_format, texture_size)
 		texture = ComputeHelper.rd.texture_create(texture_format, ComputeHelper.view, [image.get_data()])
 		rid_updated.emit(self)
 
@@ -40,6 +42,18 @@ func update_image(image: Image) -> void:
 func get_image() -> Image:
 	var image_data := ComputeHelper.rd.texture_get_data(texture, 0)
 	return Image.create_from_data(texture_size.x, texture_size.y, false, image_format, image_data)
+
+## Gets the image's data asynchronously. Returns a [Signal] with an [Image] that will be emitted when the image is retrieved. The signal remains the same each time you call this function, so feel free to cache it. [b]Note:[\b] The delay to when the signal is emitted corresponds to the amount of frames specified by [member ProjectSettings.rendering/rendering_device/vsync/frame_queue_size]. Also, this function does nothing before Godot 4.4.
+func get_image_async() -> Signal:
+	if ComputeHelper.version < 4:
+		return async_image_retrieved
+	ComputeHelper.rd.texture_get_data_async(texture, 0, async_image_callback)
+	return async_image_retrieved
+
+## Used internally for [get_image_async].
+func async_image_callback(image_data: PackedByteArray) -> void:
+	var image := Image.create_from_data(texture_size.x, texture_size.y, false, image_format, image_data)
+	async_image_retrieved.emit(image)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE:

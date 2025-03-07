@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://ubk1eg06xxd"
+path="res://.godot/imported/04C_Agents.glsl-74c949d1384b855de36d594a9d064190.res"
+
+[deps]
+
+source_file="res://04C_Attraction_2D/04C_Agents.glsl"
+dest_files=["res://.godot/imported/04C_Agents.glsl-74c949d1384b855de36d594a9d064190.res"]
+
+[params]
+

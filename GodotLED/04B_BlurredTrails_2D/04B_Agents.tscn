@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmet3oyphwl6b"]
+
+[ext_resource type="Script" uid="uid://n78c8akajhmw" path="res://04B_BlurredTrails_2D/04B_agents.gd" id="1_u2igd"]
+
+[node name="04B_BlurringTrails" type="TextureRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_u2igd")
+agent_shader_path = "uid://ddkjn46xkmp84"
+image_shader_path = "uid://bihoilrds023e"

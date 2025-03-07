@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dgeh3h41lqje3"]
 
-[ext_resource type="Script" path="res://0_ComputeDemo/0_demo.gd" id="1_456rp"]
+[ext_resource type="Script" uid="uid://dvt15ukbt8n5u" path="res://0_ComputeDemo/0_demo.gd" id="1_456rp"]
 [ext_resource type="Texture2D" uid="uid://bsm40o7xuabx6" path="res://icon.svg" id="1_dp7w3"]
 
 [node name="0Demo" type="TextureRect"]

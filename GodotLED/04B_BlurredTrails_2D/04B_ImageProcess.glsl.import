@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bihoilrds023e"
+path="res://.godot/imported/04B_ImageProcess.glsl-e81f6aeddc945694d45e17b0e96786d4.res"
+
+[deps]
+
+source_file="res://04B_BlurredTrails_2D/04B_ImageProcess.glsl"
+dest_files=["res://.godot/imported/04B_ImageProcess.glsl-e81f6aeddc945694d45e17b0e96786d4.res"]
+
+[params]
+

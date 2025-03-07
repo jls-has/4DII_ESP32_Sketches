@@ -63,8 +63,8 @@ void main() {
 	int sample_radius = int(params.blur_radius);
 	int samples = 0;
 	vec4 sum = vec4(0,0,0,0);
-	for (int offset_x = -sample_radius; offset_x < sample_radius; offset_x ++){
-		for (int offset_y = -sample_radius; offset_y < sample_radius; offset_y ++){
+	for (int offset_x = -sample_radius; offset_x <= sample_radius; offset_x ++){
+		for (int offset_y = -sample_radius; offset_y <= sample_radius; offset_y ++){
 			int sample_x = id.x + offset_x;
 			int sample_y = id.y + offset_y;
 			samples++;
@@ -77,7 +77,7 @@ void main() {
 		}
 	}
 
-	vec4 blur_result = sum / float(samples);
+	vec4 blur_result = sum / float(samples+1);
 
 	vec4 blurred_value = mix(texel, blur_result, params.blur_speed*params.delta_time);
 

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://up14n7lkx5so"]
 
-[ext_resource type="Script" path="res://AA_UDP/UDP_Server.gd" id="1_jsonp"]
+[ext_resource type="Script" uid="uid://cnt8eg6mb7d3u" path="res://AA_UDP/UDP_Server.gd" id="1_jsonp"]
 
 [node name="AA_UDP" type="Control"]
 layout_mode = 3
