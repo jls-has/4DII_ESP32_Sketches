@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8wqhnb82r6gv"]
+
+[ext_resource type="Script" uid="uid://dsoyxhyn8ndob" path="res://04_FadingTrails_2D/04_agents.gd" id="1_hf4vn"]
+
+[node name="04_FadingTrails" type="TextureRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hf4vn")
+agent_speed = null
+fade_speed = 0.1
+blur_speed = 5.0
+blur_radius = 1.0
+image_format = null
+brightness = null
+contrast = null
+agent_shader_path = "res://04_FadingTrails_2D/04_Agents.glsl"
+image_shader_path = "res://04_FadingTrails_2D/04_ImageProcess.glsl"

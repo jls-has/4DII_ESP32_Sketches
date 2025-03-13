@@ -9,7 +9,7 @@
 */
 
 // Include DacESP32 Library
-#include <DacESP32.h>
+#include <FastLED.h>
 
 // Create DAC object for Channel 1
 DacESP32 dac1(GPIO_NUM_25);

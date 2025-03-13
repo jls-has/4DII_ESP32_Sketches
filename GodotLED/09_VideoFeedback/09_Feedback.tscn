@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://dytl3jwqt4kia"]
+
+[ext_resource type="Texture2D" uid="uid://bsm40o7xuabx6" path="res://icon.svg" id="1_m5vuw"]
+[ext_resource type="Script" uid="uid://c8lg6oyjx4nhc" path="res://09_VideoFeedback/09_Feedback.gd" id="1_pkrv0"]
+
+[node name="09_Feedback" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_pkrv0")
+
+[node name="InputImage" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OutputImage" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_m5vuw")
+
+[connection signal="size_flags_changed" from="OutputImage" to="." method="_on_size_flags_changed"]

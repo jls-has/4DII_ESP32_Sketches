@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://cv1cw0sdox388"
+path="res://.godot/imported/09_Feedback1.glsl-0e66e2ed24a24c5373ab22a70b394cf3.res"
+
+[deps]
+
+source_file="res://09_VideoFeedback/09_Feedback1.glsl"
+dest_files=["res://.godot/imported/09_Feedback1.glsl-0e66e2ed24a24c5373ab22a70b394cf3.res"]
+
+[params]
+
